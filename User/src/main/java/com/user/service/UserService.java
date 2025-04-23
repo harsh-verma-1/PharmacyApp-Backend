@@ -1,8 +1,11 @@
 package com.user.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.user.exception.UserAlreadyPresentException;
 import com.user.exception.UserNotFoundException;
 import com.user.model.Role;
 import com.user.model.User;
@@ -21,17 +24,40 @@ public class UserService {
 	@Autowired
 	private DoctorService doctorService;
 
-	public User register(User user) {
+	//register the user after checking the email address
+	public User register(User user) throws UserAlreadyPresentException{
+		Optional<User> u = userRepository.findByEmail(user.getEmail());
+		try {
+			if(u.isPresent()) {
+				throw new UserAlreadyPresentException("User Already Present");
+			}
+		}
+		catch(UserAlreadyPresentException e) {
+			throw new UserAlreadyPresentException(e.getMessage());
+		}
 		return userRepository.save(user);
+		
 	}
 	
-	public User login(Role role) throws UserNotFoundException {
-		if(role==Role.Admin) {
-			User user = adminService.performActions();
+	
+	
+	//login the user
+	public User login(String email, String pass) throws UserNotFoundException {
+		System.out.println(email);
+		User u = userRepository.findByEmail(email)
+				.orElseThrow(()->{
+				return new UserNotFoundException("user not available");
+				});
+		
+		if(email.matches(u.getEmail()) && pass.matches(u.getPassword())) {
+//			adminService.performActions();
+			System.out.println(u.getEmail()+"-------------"+u.getPassword());
+			return u;
 		}
-		else if(role==Role.Doctor){
-			User user = doctorService.performActions();
-		}
+//		else if(user.getRole().equals("Doctor")) {
+//			doctorService.performActions();
+//		}
+
 		throw new UserNotFoundException("User Not Available");
 	}
 	

@@ -114,4 +114,3 @@ INDEX VERSION 1.134+C:\Users\HVERMA1\Desktop\Case-Study Februry\PharmacyManageme
 2581768628.index
 433602114.index
 2973667404.index
-925135804.index
